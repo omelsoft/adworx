@@ -1,0 +1,101 @@
+
+        <nav class="breadcrumb">
+          <a class="breadcrumb-item" href="">Ad Placements</a>
+          <a ng-If="filter.site" class="breadcrumb-item" href="">{{ filter.site }}</a>
+          <a ng-If="filter.site != 'All Sites'" class="breadcrumb-item" href="">{{ filter.partner }}</a>
+          <a ng-If="filter.placementName != ''" class="breadcrumb-item" href="">{{ filter.placementName }}</a>
+        </nav>
+        <div class="row filters">
+          <div class="clear"></div> 
+          <div class="sites-filter input-group-btn">
+            <input type="hidden" ng-model="filter.siteId" value="{{siteId}}">
+            <button type="button" class="sites-filter-selected btn btn-default" ng-model="filter.site">{{ filter.site }}</button>
+            <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"><span class="caret"></span>
+            </button>
+            <ul class="dropdown-menu">
+              <li><a href="" ng-click="filterBySite()">All Sites</a></li>
+              <li class="divider"></li>    
+              <li ng-repeat="site in pubSites">
+                <a href="" data-id="{{site['id']}}" ng-click="filterBySite($index, site['id'])">{{site['siteName']}}</a>
+              </li>
+            </ul>
+          </div><!-- /.site-filter -->   
+          <div class="partners-filter input-group-btn" ng-show="filteredBySite == 1">
+            <input type="hidden" ng-model="filter.partnerId" value="{{partnerId}}">
+            <button type="button" class="partners-filter-selected btn btn-default" ng-model="filter.partner">{{ filter.partner }}</button>
+            <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"><span class="caret"></span>
+            </button>
+            <ul class="dropdown-menu">
+              <li><a href="" ng-click="filterByPartner()">All Partners</a></li>
+              <li class="divider"></li>
+              <li ng-repeat="partner in pubPartners">
+                <a href="" data-id="{{partner['id']}}" ng-click="filterByPartner($index, partner['id'])">{{partner['name']}}</a>
+              </li>
+            </ul>
+          </div><!-- /.partners-filter -->  
+        </div>
+        <div class="clear"></div>        
+        <table class="table table-bordered pagin-table">
+            <thead>
+                <tr>
+                    <th width="12.8%">#</th>
+                    <th width="20%">Site</th>
+                    <th width="20%%">Ad Partner</th> 
+                    <th width="20%">Placement Name</th>                   
+                    <th width="12.8%">Action</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr dir-paginate="data in pubPlacements | itemsPerPage:5" total-items="totalPlacements" pagination-id="placements">
+                    <th scope="row">{{ data.id }}</th>
+                    <td>{{ data.siteName }}</td>                    
+                    <td>{{ data.name }}</td>                    
+                    <td>{{ data.placementName }}</td>   
+                    <td class="actions">
+                        <a ng-click="viewReportsByPlacement(data)" title="View Reports"><i class="fa fa-list" aria-hidden="true"></i></a>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+        <dir-pagination-controls pagination-id="placements" on-page-change="pageChanged(newPageNumber)" template-url="/app/application/views/templates/dirPagination.html" ></dir-pagination-controls>
+
+        <div class="clear"></div>
+        <div class="row" ng-If="reportViewed == true">
+            <table class="table table-bordered pagin-table">
+                <thead>
+                    <tr>
+                        <th width="20%">Date</th>
+                        <th width="20%">Impressions</th>
+                        <th width="20%">Clicks</th>
+                        <th width="20%">eCPM</th> 
+                        <th width="20%">Revenue</th>                   
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr dir-paginate="data in dataReports | itemsPerPage:5" total-items="totalReports" pagination-id="reports">
+                        <th scope="row">{{ data.Date }}</th>
+                        <td>
+                            <span ng-If="rows.selected.id != data.id && rows.selected[$index].id != data.id">{{ rows.selected.id != data.id ? (data.Impressions | number) : '' }}</span>
+                            <input class="txtedit" type="text" ng-model="rows.data.Impressions" value="{{data.Impressions}}" ng-If="rows.selected.id == data.id">
+                            <input class="txtedit" type="text" ng-model="rows.data[$index].Impressions" value="{{data[$index].Impressions}}" ng-If="rows.selected[$index].id == data.id">
+                        </td>
+                        <td>
+                            <span ng-If="rows.selected.id != data.id && rows.selected[$index].id != data.id">{{ rows.selected.id != data.id ? data.Clicks : '' }}</span>
+                            <input class="txtedit" type="text" ng-model="rows.data.Clicks" value="{{data.Clicks}}" ng-If="rows.selected.id == data.id">
+                            <input class="txtedit" type="text" ng-model="rows.data[$index].Clicks" value="{{data[$index].Clicks}}" ng-If="rows.selected[$index].id == data.id">
+                        </td>                    
+                        <td>
+                            <span ng-If="rows.selected.id != data.id && rows.selected[$index].id != data.id">{{ rows.selected.id != data.id ? (data.eCPM | currency:"$ ") : '' }}</span>
+                            <input class="txtedit" type="text" ng-model="rows.data.eCPM" value="{{data.eCPM}}" ng-If="rows.selected.id == data.id">
+                            <input class="txtedit" type="text" ng-model="rows.data[$index].eCPM" value="{{data[$index].eCPM}}" ng-If="rows.selected[$index].id == data.id">
+                        </td>                    
+                        <td>
+                            <span ng-If="rows.selected.id != data.id && rows.selected[$index].id != data.id">{{ rows.selected.id != data.id ? (data.Revenue | currency:"$ "): '' }}</span>
+                            <input class="txtedit" type="text" ng-model="rows.data.Revenue" value="{{data.Revenue}}" ng-If="rows.selected.id == data.id">
+                            <input class="txtedit" type="text" ng-model="rows.data[$index].Revenue" value="{{data[$index].Revenue}}" ng-If="rows.selected[$index].id == data.id">
+                        </td>   
+                    </tr>
+                </tbody>
+            </table>
+            <dir-pagination-controls pagination-id="reports" on-page-change="pageReportChange(newPageNumber)" template-url="/app/application/views/templates/dirPagination.html" ></dir-pagination-controls>
+        </div>      

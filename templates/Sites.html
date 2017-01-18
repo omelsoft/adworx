@@ -1,0 +1,65 @@
+        <div class="row">
+            <div class="col-lg-12 margin-tb">
+                <div class="pull-left">
+                    <h1>Active Sites</h1>
+                </div>
+                <div class="pull-right" style="padding-top:30px">
+                    <button class="btn btn-success" data-toggle="modal" data-target="#addNewSite">Add New Site</button>
+                </div>                
+            </div>
+        </div>
+        <table class="table table-bordered pagin-table">
+            <thead>
+                <tr>
+                    <th>#</th>
+                    <th>Name</th>
+                    <th>URL</th>
+                    <th width="220px">Action</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr dir-paginate="pub in pubSites | itemsPerPage:5" total-items="totalSites">
+                    <td>{{ pub.id }}</td>
+                    <td>{{ pub.siteName }}</td>
+                    <td>{{ pub.siteUrl }}</td>
+                    <td class="actions">
+                        <input type="checkbox"></input>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+        <dir-pagination-controls class="pull-right" on-page-change="pageChanged(newPageNumber)" template-url="application/views/templates/dirPagination.html" ></dir-pagination-controls>
+
+        <!-- Create Modal -->
+        <div class="modal fade" id="addNewSite" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
+            <div class="modal-dialog" role="document">
+                <div class="modal-content">
+                    <form method="POST" name="addItem" role="form" ng-submit="addNewSite()">
+                    <div class="modal-header">
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">×</span></button>
+                        <h4 class="modal-title" id="myModalLabel">Add New Site</h4>
+                    </div>
+                    <div class="modal-body">
+                        <div class="">
+                            <div class="row">
+                                <input class="sr-only" type="text" ng-model="site.pubId" value="{{pubId}}">
+                                <div class="input-group">
+                                    <span class="input-group-addon input-label" id="paypal">Site Name:</span>
+                                    <input ng-model="sites.siteName" type="text" placeholder="Name" name="title" class="form-control" required />
+                                </div>
+                                <div class="clear"></div>
+                                <div class="input-group" >
+                                    <span class="input-group-addon input-label" id="paypal">Site Url:</span>
+                                    <input ng-model="sites.siteUrl" type="text" placeholder="Website" name="title" class="form-control" required />
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                        <button type="submit" ng-disabled="addItem.$invalid" class="btn btn-primary">Submit</button>                            
+                    </div>                    
+                    </form>
+                </div>
+            </div>
+        </div>

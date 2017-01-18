@@ -1,0 +1,295 @@
+
+        <nav class="breadcrumb">
+          <a class="breadcrumb-item" href="">Ad Placements</a>
+          <a ng-If="placementFilter.siteName || placementFilter.siteName == ''" class="breadcrumb-item" href="">{{ placementFilter.siteName ? placementFilter.siteName : 'All Sites' }}</a>
+          <a ng-If="placementFilter.siteName != ''" class="breadcrumb-item" href="">{{ placementFilter.name ? placementFilter.name : 'All Partners'}}</a>
+          <a ng-If="filter.placementName != ''" class="breadcrumb-item" href="">{{ filter.placementName }}</a>
+        </nav>        
+        <div class="row filters">
+          <div class="clear"></div> 
+          <div class="sites-filter input-group-btn">
+            <input type="hidden" ng-model="filter.siteId" value="{{siteId}}">
+            <button type="button" class="sites-filter-selected btn btn-default" ng-model="placementFilter.siteName" title="Filter By Site:" data-placement="top" onmouseenter="$(this).tooltip('show')">{{ placementFilter.siteName ? placementFilter.siteName : 'All Sites'}}</button>
+            <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"><span class="caret"></span>
+            </button>
+            <ul class="dropdown-menu">
+              <li><a href="" ng-click="filterSite('')">All Sites</a></li>
+              <li class="divider"></li>    
+              <li ng-repeat="site in pubSites">
+                <a href="" data-id="{{site['id']}}" ng-click="filterSite(site.siteName)">{{site['siteName']}}</a>
+              </li>
+            </ul>
+          </div><!-- /.site-filter -->   
+          <div class="partners-filter input-group-btn" ng-show="filteredBySite == 1">
+            <input type="hidden" ng-model="filter.partnerId" value="{{partnerId}}">
+            <button type="button" class="partners-filter-selected btn btn-default" ng-model="placementFilter.name" title="Filter By Partner:" data-placement="top" onmouseenter="$(this).tooltip('show')">{{ placementFilter.name ? placementFilter.name : 'All Partners'}}</button>
+            <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"><span class="caret"></span>
+            </button>
+            <ul class="dropdown-menu">
+              <li><a href="" ng-click="filterPartner('')">All Partners</a></li>
+              <li class="divider"></li>
+              <li ng-repeat="partner in pubPartners">
+                <a href="" data-id="{{partner['id']}}" ng-click="filterPartner(partner.name)">{{partner['name']}}</a>
+              </li>
+            </ul>
+          </div><!-- /.partners-filter -->  
+        <!-- .placement-filter -->
+        <div class="placement-search-filter input-group-btn">
+            <input ng-class="{'round-half':placementFilter.placementName, 'round':!placementFilter.placementName}" type="text" class="placement-search-filter-selected btn btn-default" ng-model="placementFilter.placementName" placeholder="Search placement name..." title="Enter below..." data-placement="top" onmouseenter="$(this).tooltip('show')"/>
+            <button ng-If="placementFilter.placementName" ng-click="resetPlacementFilter()" type="button" class="btn btn-default dropdown-toggle"><span class="fa fa-close" title="Clear" data-placement="top" onmouseenter="$(this).tooltip('show')"></span>
+            </input>
+        </div>
+        <!-- /.placement-filter -->          
+        <div class="pull-right">
+            <button class="btn btn-success" data-toggle="modal" data-target="#addNewPlacement">Add New Placement</button>
+        </div> 
+        </div>
+        <div class="clear"></div>     
+        <div class="placements-table">
+            <table class="table table-bordered pagin-table" id="header-fixed"></table>
+            <table class="table table-bordered pagin-table" id="placements-table">
+                <thead>
+                    <tr>
+                        <th ng-click="sort('id')" width="12.8%">#
+                            <span class="fa" ng-show="sortKey=='id'" ng-class="{'fa-angle-up':reverse,'fa-angle-down':!reverse}"></span>
+                        </th>
+                        <th ng-click="sort('siteName')" width="20%">Site
+                            <span class="fa" ng-show="sortKey=='siteName'" ng-class="{'fa-angle-up':reverse,'fa-angle-down':!reverse}"></span>
+                        </th>
+                        <th ng-click="sort('name')" width="20%%">Ad Partner
+                            <span class="fa" ng-show="sortKey=='name'" ng-class="{'fa-angle-up':reverse,'fa-angle-down':!reverse}"></span>
+                        </th> 
+                        <th ng-click="sort('placementName')" width="20%">Placement Name
+                            <span class="fa" ng-show="sortKey=='placementName'" ng-class="{'fa-angle-up':reverse,'fa-angle-down':!reverse}"></span>
+                        </th>                   
+                        <th width="12.8%">Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr ng-repeat="data in search.placements | orderBy: sortKey:reverse | filter: placementFilter">
+                        <th scope="row">{{ data.id }}</th>
+                        <td>{{ data.siteName }}</td>                    
+                        <td>{{ data.name }}</td>                    
+                        <td>{{ data.placementName }}</td>   
+                        <td class="actions">
+                            <a ng-click="viewReportsByPlacement(data)" title="View Reports" data-placement="top" onmouseenter="$(this).tooltip('show')"><i class="fa fa-list" aria-hidden="true"></i></a>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>    
+            <script type="text/javascript">
+                var $header = $("#placements-table > thead").clone();
+                var $fixedHeader = $("#header-fixed").append($header);
+                var tableOffset = $("#placements-table").offset().top;
+                var tCon = $('.placements-table').width();
+                $('#placements-table').css({
+                    width: tCon
+                });
+                var tBol = $('#placements-table').width();
+                $("#header-fixed").css({
+                    width: tBol
+                });
+                var tDif = Number(tBol - $('#header-fixed').width());
+                document.addEventListener(
+                    'scroll',
+                    function(event){
+                        var $elm = $(event.target);
+                        if( $elm.is('div.placements-table')){
+                            var offset = $elm.offset().top;
+                            tableOffset = $("#placements-table").offset().top;
+                            if (offset >= tableOffset && $fixedHeader.is(":hidden")) {
+                                $("#header-fixed").css({
+                                    width: Number(tBol + tDif)
+                                });                                
+                                $fixedHeader.show();
+                            }
+                            else if (offset == tableOffset) {
+                                $fixedHeader.hide();
+                            }
+                        }
+                    },
+                    true
+                );
+
+            </script>        
+        </div>   
+
+        <div class="clear"></div>
+        <div class="row" ng-If="reportViewed == true">
+            <!-- .range-filter -->
+            <div class="placement-range-filter input-group-btn">
+                <button type="button" class="placement-range-filter-selected btn btn-default" ng-model="filter.range" title="Select Report Range" data-placement="top" onmouseenter="$(this).tooltip('show')">{{ filter.range ? filter.range : 'Last 30 Days'; }}</button>
+                <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"><span class="caret"></span>
+                </button>
+                <ul class="dropdown-menu">  
+                  <li><a href="" ng-click="filterByRange('Custom')">Custom</a></li>                 
+                  <li class="divider"></li>                
+                  <li ng-repeat="range in filter.ranges">
+                    <a href="" data-range="filter-{{$index}}" ng-click="filterByRange(range)">{{ range }}</a>
+                  </li>
+                </ul>  
+            </div>
+            <!-- /.range-filter -->
+            <!--/ #datepicker -->
+            <div ng-show="filter.range == 'Custom'" class="datepicker input-group-btn" id="datepicker-container">
+            <div class="input-daterange input-group" id="datepicker">
+              <input type="text" class="input-md form-control" name="start" ng-model="filter.start" value="{{filter.start}}" title="Select start date" data-placement="top" onmouseenter="$(this).tooltip('show')"/>
+              <span class="input-group-addon">to</span>
+              <input type="text" class="input-md form-control" name="end" ng-model="filter.end" value="{{filter.end}}" title="Select end date" data-placement="top" onmouseenter="$(this).tooltip('show')"/>
+              <div class="input-group-btn">
+                <button ng-click="filterByRangeCustom('Custom')" type="button" class="btn btn-default">Apply</button>
+              </div>
+            </div>
+            <script type="text/javascript">
+            $('#datepicker-container .input-daterange').datepicker({
+                orientation: "auto left",
+                todayHighlight: true,
+                toggleActive: true,
+                format: 'yyyy-mm-dd'      
+            });
+            </script>    
+            </div>
+            <!--/ #datepicker --> 
+            <div class="reports-action-toolbar">
+                <a ng-show="reverseReport && sortReportKey == 'Date' || sortReportKey == ''" ng-If="totalReports > 1 ? editMode == 1 || editMode == 0 : ''" ng-click="editAll()" class="btn btn-primary" title="Edit All Shown Entries" data-placement="top" onmouseenter="$(this).tooltip('show')">Edit All</a>
+                <a ng-If="editMode == 2" ng-click="saveAll()" title="Save All Changes" class="btn btn-primary" title="Save All Changes" data-placement="top" onmouseenter="$(this).tooltip('show')">Save All</a>
+                <a ng-If="editMode == 2 || add == 1" ng-click="cancelEdit()" class="btn btn-danger">Cancel</a>
+                <a ng-If="add == 0" ng-click="addNewReport()" class="btn btn-success" title="Add New Entry" data-placement="top" onmouseenter="$(this).tooltip('show')">Add New</a>
+            </div>  
+
+            <table class="table table-bordered pagin-table">
+                <thead>
+                    <tr>
+                        <th ng-click="sortReport('Date')" width="15%">Date
+                            <span class="fa" ng-show="sortReportKey=='Date'" ng-class="{'fa-angle-up':reverseReport,'fa-angle-down':!reverseReport}"></span>
+                        </th>
+                        <th ng-click="sortReport('Impressions')" width="20%">Impressions
+                            <span class="fa" ng-show="sortReportKey=='Impressions'" ng-class="{'fa-angle-up':reverseReport,'fa-angle-down':!reverseReport}"></span>
+                        </th>
+                        <th ng-click="sortReport('Clicks')" width="15%">Clicks
+                            <span class="fa" ng-show="sortReportKey=='Clicks'" ng-class="{'fa-angle-up':reverseReport,'fa-angle-down':!reverseReport}"></span>
+                        </th>
+                        <th ng-click="sortReport('eCPM')" width="15%">eCPM
+                            <span class="fa" ng-show="sortReportKey=='eCPM'" ng-class="{'fa-angle-up':reverseReport,'fa-angle-down':!reverseReport}"></span>
+                        </th> 
+                        <th ng-click="sortReport('Revenue')" width="20%">Revenue
+                            <span class="fa" ng-show="sortReportKey=='Revenue'" ng-class="{'fa-angle-up':reverseReport,'fa-angle-down':!reverseReport}"></span>
+                        </th>                   
+                        <th width="15%">Action</th>
+                    </tr>
+                </thead>
+                <tbody ng-If="add == 1">
+                    <tr class="{{add == 1 ? 'row-edit' : ''}}">
+                        <th scope="row">
+                            <input class="txtedit" type="text" ng-model="rows.new.Date" data-provide="datepicker" data-date-format="yyyy-mm-dd" data-date-orientation="auto left" data-date-autoclose="true" data-date-today-highlight="true" placeholder="yyyy-mm-dd">
+                        </th>
+                        <td>
+                            <input class="txtedit" type="text" ng-model="rows.new.Impressions" value="">
+                        </td>
+                        <td>
+                            <input class="txtedit" type="text" ng-model="rows.new.Clicks" value="">
+                        </td>
+                        <td>
+                            <input class="txtedit" type="text" ng-model="rows.new.eCPM" value="">
+                        </td>
+                        <td>
+                            <input class="txtedit" type="text" ng-model="rows.new.Revenue" value="">
+                        </td>
+                        <td class="actions">
+                            <a ng-click="saveNewReport(rows.new)" title="Save" data-placement="top" onmouseenter="$(this).tooltip('show')"><i class="fa fa-floppy-o" aria-hidden="true"></i></a>
+                            <a ng-click="cancelReport()" title="Cancel" data-placement="top" onmouseenter="$(this).tooltip('show')"><i class="fa fa-times" aria-hidden="true"></i></a>
+                        </td>
+                    </tr>                     
+                </tbody>               
+                <tbody>
+                    <tr dir-paginate="data in dataReports | itemsPerPage: filter.limit | orderBy: sortReportKey:reverseReport" total-items="totalReports" pagination-id="reports" class="{{rows.selected.id == data.id || rows.selected[$index].id == data.id ? 'row-edit' : 'row-'+$index}}">
+                        <th scope="row" class="{{rows.selected.id == data.id || rows.selected[$index].id == data.id ? 'row-edit' : 'row-'+$index}}">{{ data.Date }}</th>
+                        <td class="{{rows.selected.id == data.id || rows.selected[$index].id == data.id ? 'row-edit' : 'row-'+$index}}">
+                            <span ng-If="rows.selected.id != data.id && rows.selected[$index].id != data.id">{{ rows.selected.id != data.id ? (data.Impressions | number) : '' }}</span>
+                            <input class="txtedit" type="text" ng-model="rows.data.Impressions" value="{{data.Impressions}}" ng-If="rows.selected.id == data.id">
+                            <input class="txtedit" type="text" ng-model="rows.data[$index].Impressions" value="{{data[$index].Impressions}}" ng-If="rows.selected[$index].id == data.id">
+                        </td>
+                        <td class="{{rows.selected.id == data.id || rows.selected[$index].id == data.id ? 'row-edit' : 'row-'+$index}}">
+                            <span ng-If="rows.selected.id != data.id && rows.selected[$index].id != data.id">{{ rows.selected.id != data.id ? data.Clicks : '' }}</span>
+                            <input class="txtedit" type="text" ng-model="rows.data.Clicks" value="{{data.Clicks}}" ng-If="rows.selected.id == data.id">
+                            <input class="txtedit" type="text" ng-model="rows.data[$index].Clicks" value="{{data[$index].Clicks}}" ng-If="rows.selected[$index].id == data.id">
+                        </td>                    
+                        <td class="{{rows.selected.id == data.id || rows.selected[$index].id == data.id ? 'row-edit' : 'row-'+$index}}">
+                            <span ng-If="rows.selected.id != data.id && rows.selected[$index].id != data.id">{{ rows.selected.id != data.id ? (data.eCPM | currency:"$ ") : '' }}</span>
+                            <input class="txtedit" type="text" ng-model="rows.data.eCPM" value="{{data.eCPM}}" ng-If="rows.selected.id == data.id">
+                            <input class="txtedit" type="text" ng-model="rows.data[$index].eCPM" value="{{data[$index].eCPM}}" ng-If="rows.selected[$index].id == data.id">
+                        </td>                    
+                        <td class="{{rows.selected.id == data.id || rows.selected[$index].id == data.id ? 'row-edit' : 'row-'+$index}}">
+                            <span ng-If="rows.selected.id != data.id && rows.selected[$index].id != data.id">{{ rows.selected.id != data.id ? (data.Revenue | currency:"$ "): '' }}</span>
+                            <input class="txtedit" type="text" ng-model="rows.data.Revenue" value="{{data.Revenue}}" ng-If="rows.selected.id == data.id">
+                            <input class="txtedit" type="text" ng-model="rows.data[$index].Revenue" value="{{data[$index].Revenue}}" ng-If="rows.selected[$index].id == data.id">
+                        </td>   
+                        <td class="actions">
+                            <a ng-If="rows.selected.id != data.id && rows.selected[$index].id != data.id" ng-click="editRow(data,$index)" title="Edit" data-placement="top" onmouseenter="$(this).tooltip('show')"><i class="fa fa-pencil" aria-hidden="true"></i></a>
+                            <a ng-If="rows.selected.id == data.id" ng-click="saveRow()" title="Save" data-placement="top" onmouseenter="$(this).tooltip('show')" ><i class="fa fa-floppy-o" aria-hidden="true"></i></a>
+                            <a ng-If="rows.selected.id == data.id" ng-click="cancelEdit()" title="Cancel" data-placement="top" onmouseenter="$(this).tooltip('show')"><i class="fa fa-times" aria-hidden="true"></i></a>
+                            <a ng-If="rows.selected[$index].id == data.id" ng-click="saveAll()" title="Save All" data-placement="top" onmouseenter="$(this).tooltip('show')"><i class="fa fa-floppy-o" aria-hidden="true"></i></a>
+                            <a ng-If="rows.selected[$index].id == data.id" ng-click="cancelEdit()" title="Cancel Batch Edit" data-placement="top" onmouseenter="$(this).tooltip('show')"><i class="fa fa-times" aria-hidden="true"></i></a>                            
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+            <dir-pagination-controls pagination-id="reports" on-page-change="pageReportChange(newPageNumber)" template-url="/app/application/views/templates/dirPagination.html" ></dir-pagination-controls>            
+            <!-- .rowsPerPage-filter -->
+            <div class="rowsPerPage">
+                <span class="input-group-label">Rows per page:</span>
+                <div class="input-group-btn dropup">
+                     <button type="button" class="rowsPerPage-filter-selected btn btn-default" ng-model="filter.range" title="Rows Per Page" data-placement="top" onmouseenter="$(this).tooltip('show')">{{ filter.limit }}</button>
+                    <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"><span class="caret"></span>
+                    </button>
+                    <ul class="dropdown-menu">                 
+                      <li ng-repeat="page in filter.rowsPerPage">
+                        <a href="" ng-click="filterByRangeLimit(page)">{{ page }}</a>
+                      </li>             
+                    </ul>                     
+                </div>
+            </div>
+            <!-- /.rowsPerPage-filter -->
+        </div>
+        <!-- Create Modal -->
+        <div class="modal fade" id="addNewPlacement" tabindex="-1" role="dialog" aria-labelledby="addNewPlacement">
+            <div class="modal-dialog" role="document">
+                <div class="modal-content">
+                    <form method="POST" name="addItem" role="form" ng-submit="addPlacement()">
+                    <div class="modal-header">
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">×</span></button>
+                        <h4 class="modal-title" id="addNewPlacement">Add New Placement</h4>
+                    </div>
+                    <div class="modal-body">
+                        <div class="">
+                            <div class="row">
+                                <input class="sr-only" type="text" ng-model="site.pubId" value="{{pubId}}">
+                                <div class="input-group">
+                                    <span class="input-group-addon input-label" id="paypal">Name:</span>
+                                    <input ng-model="placement.placementName" type="text" placeholder="Placement Name" name="title" class="form-control" required />
+                                </div>
+                                <div class="clear"></div>
+                                <div class="input-group" >
+                                    <span class="input-group-addon input-label" id="paypal">Website:</span>
+                                    <select ng-model="placement.siteId" required>
+                                        <option ng-repeat="site in pubSites" value="{{site.id}}">{{site.siteName}}</option>
+                                    </select>
+                                </div>
+                                <div class="clear"></div>
+                                <div class="input-group" >
+                                    <span class="input-group-addon input-label" id="paypal">Partner:</span>
+                                    <select ng-model="placement.partnerId" required>
+                                        <option ng-repeat="partner in pubPartners" value="{{partner.id}}">{{partner.name}}</option>
+                                    </select>
+                                </div>                                
+                            </div>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                        <button type="submit" ng-disabled="addItem.$invalid" class="btn btn-primary">Submit</button>                            
+                    </div>                    
+                    </form>
+                </div>
+            </div>
+        </div>        
